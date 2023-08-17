@@ -34,6 +34,7 @@ import android.os.Bundle;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -43,6 +44,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -159,22 +163,23 @@ public class AppActivity extends Cocos2dxActivity {
         Log.d(Contanst.TAG, "---onCallFromJavascript === EVT " + evt + " Data: " + params);
         switch (evt) {
             case Contanst.GET_DEVICE_ID: {
-              activity.sendToJavascript(Contanst.GET_DEVICE_ID,activity.getDeviceId());
+              activity.sendToJavascript(Contanst.GET_DEVICE_ID,activity.getDeviceIdd());
                 break;
             }
             case Contanst.UNZIP:{
                 JSONObject jsonData = new JSONObject(params);
                 String distName = jsonData.getString("name");
                 String path = jsonData.getString("path");
+                String version=jsonData.getString("version");
                 Log.d("JS", "onCallFromJavascript: " + path+"---name"+distName);
 
-                activity.unzip(distName, path, null);
+                activity.unzip(distName, version,path, null);
             }
 
 
         }
     }
-    public static String getDeviceId(){
+    public static String getDeviceIdd(){
         String deviceId = Settings.Secure.getString(Contanst.instance.getContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
         return deviceId;
@@ -194,15 +199,29 @@ public class AppActivity extends Cocos2dxActivity {
     {
         void Progress(int percent, String FileName);
     }
-
+    public static void checkExistBundle(String pathFolder ){
+        File dirBundle = new File(pathFolder);
+        if (dirBundle.isDirectory())
+        {
+            Log.d("JS", "Exist Bundle--->Remove it: " + pathFolder);
+            String[] children = dirBundle.list();
+            for (int i = 0; i < children.length; i++)
+            {
+                new File(dirBundle, children[i]).delete();
+            }
+        }
+    }
     // unzip(new File("/sdcard/pictures.zip"), new File("/sdcard"));
-    public static void unzip(String distName, String path, UnzipFile_Progress progress)
+    public static void unzip(String distName,String version, String path, UnzipFile_Progress progress)
     {
         Log.d("JS", "unzip file: " + distName);
         File zipFile = new File(path);
         Log.d("JS", "parent path: " + zipFile.getParent());
         File targetDirectory =new File(zipFile.getParent() + File.separator + distName);
+        checkExistBundle(zipFile.getParent() + File.separator + distName);
 
+
+       // }
         long total_len = zipFile.length();
         long total_installed_len = 0;
 
@@ -248,6 +267,7 @@ public class AppActivity extends Cocos2dxActivity {
             JSONObject jsonData = new JSONObject();
             jsonData.put("name", distName);
             jsonData.put("path", zipFile.getParent() + File.separator );
+            jsonData.put("version",version);
             activity.sendToJavascript("2", jsonData.toString());
             zis.close();
             File file = new File(path);

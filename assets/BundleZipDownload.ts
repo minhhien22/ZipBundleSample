@@ -26,12 +26,12 @@ export default class BundleZipDownload extends cc.Component {
         if (bndlLocal != null) {
             this.BundleVersionLocal = JSON.parse(bndlLocal);
         }
-        cc.log("BundleVersionLocal:" , JSON.stringify(this.BundleVersionLocal));
+        cc.log("BundleVersionLocal:", JSON.stringify(this.BundleVersionLocal));
         this.loadVersionConfig();
     }
     loadVersionConfig() {
         var url = "http://%host/assets/AssetBundleVersion.json?t=" + new Date().getTime();
-        url = url.replace("%host", "192.168.110.147:8080");
+        url = url.replace("%host", "192.168.1.5:8080");
         Http.get(url, {}, (err, res) => {
             console.log("Respone BundleVersion =", res);
             if (err != null) {
@@ -43,7 +43,7 @@ export default class BundleZipDownload extends cc.Component {
             //     this.BundleVersionLocal = this.BundleVersion;
             //     cc.sys.localStorage.setItem("BundleVersionLocal", JSON.stringify(this.BundleVersionLocal));
             // }
-          
+
         }, false);
     }
     onClickTaiGame(event, bundleName) {
@@ -66,19 +66,19 @@ export default class BundleZipDownload extends cc.Component {
             let versionBundle = this.BundleVersion[bundleName].hash;
             if (isDownloadZip) {
                 cc.log("START DOWNLOAD NEW BUNDLE ZIP");
-                this.downloadZipBundle(this.BundleVersion[bundleName].url, bundleName, "." + this.BundleVersion[bundleName].hash)
+                this.downloadZipBundle(this.BundleVersion[bundleName].url, bundleName, this.BundleVersion[bundleName].hash)
             } else {
                 cc.log("LOAD BUNDLE FROM LOCAL");
                 let urlLocal = jsb.fileUtils.getWritablePath() + "BundleTemp/";
                 //{"name":"Demo.e0c69","path":"/data/user/0/com.rongvang.online/files/BundleTemp/"}
-                this.downloadBundle(urlLocal, `${bundleName}.${versionBundle}`);
+                this.downloadBundle(urlLocal, bundleName, versionBundle);
             }
         }
 
 
     }
     downloadZipBundle(urlBundle, bundleName, version) {
-        this.downloadBinary({ url: urlBundle + version + ".zip", type: "arraybuffer" }, (err, data) => {
+        this.downloadBinary({ url: urlBundle + ".zip", type: "arraybuffer" }, (err, data) => {
             if (null == err) {
                 cc.log("Download Zip Bundle Sucessfully")
                 let u8Arr = new Uint8Array(data);
@@ -88,13 +88,13 @@ export default class BundleZipDownload extends cc.Component {
                     jsb.fileUtils.createDirectory(path);
                 }
                 cc.log("path save BundleZip=" + path);
-                let fPath = `${path + bundleName + version}.zip`;
+                let fPath = `${path + bundleName}.zip`;
                 let rst = jsb.fileUtils.writeDataToFile(u8Arr, fPath)
                 console.log('-=-= rst   ', rst)
                 if (rst) {
                     console.log('Save ZipFile-=-= DONE ')
 
-                    CallNative.unzipFilePath(bundleName + version, fPath)
+                    CallNative.unzipFilePath(bundleName, version, fPath);
                 } else {
                     cc.log("Blade:下载失败1")
                 }
@@ -123,16 +123,14 @@ export default class BundleZipDownload extends cc.Component {
         });
     }
 
-    downloadBundle(path, name) {
-        let nameBundle = name.split(".")[0];
-        let versionBundle = name.split(".")[1];
+    downloadBundle(path, nameBundle, versionBundle) {
         let option = { version: versionBundle }
         cc.log("downloadBundleJS: NameBundle=" + nameBundle);
         cc.log("downloadBundleJS: versionBundle=" + versionBundle);
         cc.log("downloadBundleJS: path=" + path);
         cc.log("downloadBundleJS: pathLoad=" + (path + nameBundle + `.${versionBundle}`));
 
-        cc.assetManager.loadBundle(path + nameBundle + `.${versionBundle}`, option, (err, bundle) => {
+        cc.assetManager.loadBundle(path + nameBundle, option, (err, bundle) => {
             if (err) {
                 console.log(err);
                 return;
@@ -146,7 +144,7 @@ export default class BundleZipDownload extends cc.Component {
                 game.active = true;
                 this.BundleVersionLocal[nameBundle] = {
                     hash: versionBundle,
-                    url: path + nameBundle + `.${versionBundle}`
+                    url: path + nameBundle
                 }
                 cc.sys.localStorage.setItem("BundleVersionLocal", JSON.stringify(this.BundleVersionLocal));
             })
@@ -155,6 +153,7 @@ export default class BundleZipDownload extends cc.Component {
 
     downloadBinary(item, callback) {
         var url = item.url;
+        cc.log("downloadBinary:" + url);
         var xhr = new XMLHttpRequest(), errInfo = "Load binary data failed: " + url;
         xhr.open("GET", url, true);
         xhr.responseType = item.type;

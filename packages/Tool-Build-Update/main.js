@@ -1,10 +1,12 @@
 'use strict';
 var path = require('path');
 var fs = require('fs');
+var exec = require("child_process").exec;
 var listBundleName = [];
 var listVersion = []
+var listIgnore = ["internal", "main", "resources"]
 var bundleVersionData = {};
-var urlBundle = "http://192.168.110.147:8080/assets"
+var urlBundle = "http://192.168.1.5:8080/assets"
 
 // var urlBundle = "http://192.168.34.104:8700/assets"
 var dest = '';
@@ -69,9 +71,45 @@ function getListBundle() {
 
   setTimeout(() => {
     createVersionJson();
+    zipBundle(dest)
   }, 1000);
 }
+function zipBundle(src) {
+  fs.readdirSync(src).forEach(file => {
+    let tempUrl = src + "/" + file;
+    var stats = fs.statSync(tempUrl);
+    if (stats.isDirectory() && !listIgnore.includes(file)) {
+      let rawUrl = tempUrl;
+      zipFolder(rawUrl, src);
+    }
+  })
+}
+function zipFolder(src, path) {
+  Editor.log("zipFolder:" + src + "---path==" + path);
+  // let input = "res";
+  // let out = "res.zip";
+  // let cmd = cmdCD + src;
+  // let cmd2 = cmdZip + out + " " + input;
+  // exec(cmd + cmdLink + cmd2, (error, stdout, stderr) => {
+  //   if (error) {
+  //     Editor.log(`error: ${error.message}`);
+  //     return;
+  //   }
+  //   if (stderr) {
+  //     Editor.log(`stderr: ${stderr}`);
+  //     return;
+  //   }
+  //   count++;
+  //   Editor.log("Zip Success Folder:", src + "/" + input, count + "/" + listLoc.length);
+  //   rimraf.sync(src + "/" + "res");
+  //   if (count === listLoc.length) {
+  //     getUrlSubGame(path);
+  //     count = 0;
+  //   }
 
+  // });
+
+}
 module.exports = {
   load() {
     Editor.Builder.on('build-finished', onBuildFinished);

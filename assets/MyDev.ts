@@ -6,19 +6,9 @@ cc.NativeCallJS = (evt: string, params: string) => {
     console.log('iNativeCallJS------------------------>   EVT ' + typeof evt + ' = ' + evt + " ==>>    " + params);
     switch (evt + '') {
         case UNZIP: {
-            //     let data_mail = Utils.data_mail;
-            //     data_mail.push({ title: "ADMIN", content: "You have just been successfully added " + Utils.formatNumber(Utils.price_IAP) + " gold. Wish you have moments of fun entertainment." })
-            //     Utils.data_mail = data_mail
-
-            //     Utils.money += Utils.price_IAP
-            //     Utils.vip = Utils.vip + 1;
-            //     if (Utils.vip > 15) {
-            //         Utils.vip = 15
-            //     }
-            //     Utils.price_IAP = -1
-            //     UIManager.instance.updateInfo();
+            //{"name":"Demo","path":"\/data\/user\/0\/com.rongvang.online\/files\/BundleTemp\/","version":"49208"}
             let paObj = JSON.parse(params);
-            BundleZipDownload.instance.downloadBundle(paObj.path,paObj.name)
+            BundleZipDownload.instance.downloadBundle(paObj.path,paObj.name,paObj.version)
             break;
         }
     }
@@ -34,7 +24,7 @@ export default class CallNative {
         }
     }
 
-    static unzipFilePath(distName, path) {
-        CallNative.onCallNative(UNZIP, JSON.stringify({ name: distName, path: path }))
+    static unzipFilePath(distName,version, path) {
+        CallNative.onCallNative(UNZIP, JSON.stringify({ name: distName, path: path,version:version }))
     }
 }
