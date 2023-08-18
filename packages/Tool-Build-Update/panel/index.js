@@ -8,7 +8,7 @@ Editor.Panel.extend({
 
   // html template for panel
   template: `
-    <h2>Test</h2>
+    <h2>ToolBuildUpdate</h2>
     <hr />
     <div>State: <span id="label">--</span></div>
     <hr />

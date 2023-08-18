@@ -6,11 +6,13 @@ var listBundleName = [];
 var listVersion = []
 var listIgnore = ["internal", "main", "resources"]
 var bundleVersionData = {};
-var urlBundle = "http://192.168.1.5:8080/assets"
-
+var urlBundle = "http://192.168.110.147:8080/assets"
+var zipper = require("zip-local");
+// const AdmZip = require("adm-zip");
 // var urlBundle = "http://192.168.34.104:8700/assets"
 var dest = '';
 var assetsUrl = ""
+// zipBundle("D:/Cocos/ZipBundleSample/build/web-mobile/assets")
 function onBuildFinished(options, callback) {
   assetsUrl = path.join(options.dest, "assets");
   dest = path.join(options.dest, "assets");
@@ -21,7 +23,6 @@ function onBuildFinished(options, callback) {
 
   callback();
 }
-
 function onBeforeChangeFile(options) {
   getProjectManifestUid(projectManifestPath);
 }
@@ -76,16 +77,24 @@ function getListBundle() {
 }
 function zipBundle(src) {
   fs.readdirSync(src).forEach(file => {
+    // console.log("zipBundle:" + file);
     let tempUrl = src + "/" + file;
     var stats = fs.statSync(tempUrl);
     if (stats.isDirectory() && !listIgnore.includes(file)) {
       let rawUrl = tempUrl;
-      zipFolder(rawUrl, src);
+      // zipFolder(rawUrl, src);
+      zipDirectory(rawUrl, rawUrl + ".zip");
     }
   })
 }
-function zipFolder(src, path) {
-  Editor.log("zipFolder:" + src + "---path==" + path);
+function zipDirectory(sourceDir, outPath) {
+  Editor.log("zipDirectory:sourceDir="+sourceDir);
+  Editor.log("zipDirectory:outPath="+outPath);
+  zipper.sync.zip(sourceDir).compress().save(outPath);
+  // zipper.sync.zip(sourceDir).compress().save(outPath);
+}
+async function zipFolder(src, path) {
+  console.log("zipFolder:" + src + "---path==" + path);
   // let input = "res";
   // let out = "res.zip";
   // let cmd = cmdCD + src;

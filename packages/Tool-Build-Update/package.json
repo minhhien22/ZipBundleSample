@@ -1,5 +1,5 @@
 {
-  "name": "Test",
+  "name": "Tool-Build-Update",
   "version": "0.0.1",
   "description": "The package template for getting started.",
   "author": "Cocos Creator",
@@ -15,8 +15,11 @@
   "panel": {
     "main": "panel/index.js",
     "type": "dockable",
-    "title": "Test",
+    "title": "Tool-Build-Update",
     "width": 400,
     "height": 300
+  },
+  "dependencies": {
+    "zip-local": "^0.3.5"
   }
 }
