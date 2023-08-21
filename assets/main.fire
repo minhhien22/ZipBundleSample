@@ -331,8 +331,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 40
+      "width": 210,
+      "height": 73
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -575,10 +575,10 @@
     "alignMode": 0,
     "_target": null,
     "_alignFlags": 45,
-    "_left": -50.5,
-    "_right": -50.5,
-    "_top": -16.5,
-    "_bottom": -16.5,
+    "_left": 4.5,
+    "_right": 4.5,
+    "_top": 0,
+    "_bottom": 0,
     "_verticalCenter": 0,
     "_horizontalCenter": 0,
     "_isAbsLeft": true,
@@ -753,7 +753,7 @@
     "component": "",
     "_componentId": "000ef+U3ZNDA4lUMQt0oJoF",
     "handler": "onClickTaiGame",
-    "customEventData": "Demo"
+    "customEventData": "37"
   },
   {
     "__type__": "cc.Sprite",

@@ -31,7 +31,7 @@ export default class BundleZipDownload extends cc.Component {
     }
     loadVersionConfig() {
         var url = "http://%host/assets/AssetBundleVersion.json?t=" + new Date().getTime();
-        url = url.replace("%host", "192.168.1.5:8080");
+        url = url.replace("%host", "192.168.110.147:8080");
         Http.get(url, {}, (err, res) => {
             console.log("Respone BundleVersion =", res);
             if (err != null) {
@@ -47,35 +47,72 @@ export default class BundleZipDownload extends cc.Component {
         }, false);
     }
     onClickTaiGame(event, bundleName) {
-        let url = bundleName;
-        let bundleData;
-        let isDownloadZip = false
-        if (!this.BundleVersionLocal.hasOwnProperty(bundleName)) { // chua tung co bundle trong local---> force Download new bundle
-            isDownloadZip = true;
-        } else { //neu co roi. thi can check version local vs version remote;
-            // bundleData = this.BundleVersion[bundleData];
-            if (this.BundleVersionLocal[bundleName]["hash"] != this.BundleVersion[bundleName]["hash"]) { // cos bundle version moi
-                isDownloadZip = true
-            } else { //load lai bundle tu local len
-                cc.log(" BUNDLE DA LOAD O LOCAL,KO CO VERSION MOI")
-                isDownloadZip = false;
-            }
+        // let url = bundleName;
+        // let bundleData;
+        // let isDownloadZip = false
+        // if (!this.BundleVersionLocal.hasOwnProperty(bundleName)) { // chua tung co bundle trong local---> force Download new bundle
+        //     isDownloadZip = true;
+        // } else { //neu co roi. thi can check version local vs version remote;
+        //     // bundleData = this.BundleVersion[bundleData];
+        //     if (this.BundleVersionLocal[bundleName]["hash"] != this.BundleVersion[bundleName]["hash"]) { // cos bundle version moi
+        //         isDownloadZip = true
+        //     } else { //load lai bundle tu local len
+        //         cc.log(" BUNDLE DA LOAD O LOCAL,KO CO VERSION MOI")
+        //         isDownloadZip = false;
+        //     }
 
-        }
-        if (cc.sys.isNative && (cc.sys.os == cc.sys.OS_ANDROID || cc.sys.os == cc.sys.OS_IOS)) {
-            let versionBundle = this.BundleVersion[bundleName].hash;
-            if (isDownloadZip) {
-                cc.log("START DOWNLOAD NEW BUNDLE ZIP");
-                this.downloadZipBundle(this.BundleVersion[bundleName].url, bundleName, this.BundleVersion[bundleName].hash)
-            } else {
-                cc.log("LOAD BUNDLE FROM LOCAL");
-                let urlLocal = jsb.fileUtils.getWritablePath() + "BundleTemp/";
-                //{"name":"Demo.e0c69","path":"/data/user/0/com.rongvang.online/files/BundleTemp/"}
-                this.downloadBundle(urlLocal, bundleName, versionBundle);
-            }
-        }
+        // }
+        // if (cc.sys.isNative && (cc.sys.os == cc.sys.OS_ANDROID || cc.sys.os == cc.sys.OS_IOS)) {
+        //     let versionBundle = this.BundleVersion[bundleName].hash;
+        //     if (isDownloadZip) {
+        //         cc.log("START DOWNLOAD NEW BUNDLE ZIP");
+        //         this.downloadZipBundle(this.BundleVersion[bundleName].url, bundleName, this.BundleVersion[bundleName].hash)
+        //     } else {
+        //         cc.log("LOAD BUNDLE FROM LOCAL");
+        //         let urlLocal = jsb.fileUtils.getWritablePath() + "BundleTemp/";
+        //         //{"name":"Demo.e0c69","path":"/data/user/0/com.rongvang.online/files/BundleTemp/"}
+        //         this.downloadBundle(urlLocal, bundleName, versionBundle);
+        //     }
+        // }
+        // cc.assetManager.downloader.download("downloadZip", "http://192.168.110.147:8080/assets/" + bundleName, '.zip',
+        //     { onFileProgress: (loaded, total) => console.log(loaded / total) });
+        let zipURL = "http://192.168.110.147:8080/assets/" + bundleName + ".zip";
+        let storagePath: string = jsb.fileUtils.getWritablePath() + 'gameZipDownload/'
+        jsb.fileUtils.createDirectory(storagePath);
+        let nameZip= storagePath+bundleName+".zip";
+        let downloader = new jsb.Downloader();
+        downloader.setOnFileTaskSuccess((task) => {
 
+            console.log("DownloadZipComCoplelte")
 
+        })
+
+        downloader.setOnTaskProgress((task, curBytes, totalBytes) => {
+
+            console.log(`progress:${curBytes}/${totalBytes}`)
+
+        })
+
+        downloader.setOnTaskError((task, errCode, errString) => {
+
+            console.log(`Error Download:${errCode}/${errString}`)
+
+        })
+
+        console.log(`Start Download ZIP:${zipURL}`)
+
+        downloader.createDownloadFileTask(zipURL, nameZip);
+        // cc.assetManager.downloader.register(".zip",(url, options, onComplete) => onComplete(null, null));
+        // cc.assetManager.downloader.download("Download_ZIp", zipURL, '.zip', { onFileProgress: (loaded, total) => console.log(loaded / total) },
+        //     (err, file) => {
+        //         if (err) {
+        //             console.log(err)
+        //         } else {
+        //             console.log("Tai file thanh cong");
+        //             console.log("File la:",file);
+        //         }
+        //     });
+        // cc.assetManager.utils.
     }
     downloadZipBundle(urlBundle, bundleName, version) {
         this.downloadBinary({ url: urlBundle + ".zip", type: "arraybuffer" }, (err, data) => {
